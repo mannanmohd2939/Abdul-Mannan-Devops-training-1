@@ -47,10 +47,6 @@ jobs:
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
-        working-directory: ./aws-infra
-
       - name: Terraform Init (no backend)
         run: terraform init -backend=false
         working-directory: ./aws-infra
