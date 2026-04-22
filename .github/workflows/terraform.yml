@@ -195,8 +195,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    environment:
-      name: destroy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
