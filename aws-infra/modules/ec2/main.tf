@@ -17,6 +17,10 @@ resource "aws_key_pair" "this" {
   key_name   = "${var.name_prefix}-ec2-keypair"
   public_key = tls_private_key.ssh.public_key_openssh
 
+  lifecycle {
+    ignore_changes = [public_key]
+  }
+
   tags = {
     Name = "${var.name_prefix}-ec2-keypair"
   }
