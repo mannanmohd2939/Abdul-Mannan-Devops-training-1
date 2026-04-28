@@ -71,7 +71,7 @@ jobs:
           fi
 
           echo "Deployment completed!"
-      EOF
+          EOF
 
       - name: Verify deployment
         run: |
