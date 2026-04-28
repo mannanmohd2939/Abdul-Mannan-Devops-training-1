@@ -1,8 +1,9 @@
 module "vpc" {
   source = "./modules/vpc"
 
-  name_prefix = var.name_prefix
-  vpc_cidr    = var.vpc_cidr
+  name_prefix       = var.name_prefix
+  vpc_cidr          = var.vpc_cidr
+  existing_vpc_id   = var.existing_vpc_id
 }
 
 module "subnet" {

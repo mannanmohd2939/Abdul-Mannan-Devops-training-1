@@ -1,4 +1,4 @@
 output "subnet_id" {
   description = "ID of the public subnet"
-  value       = aws_subnet.public.id
+  value       = local.subnet_id
 }
