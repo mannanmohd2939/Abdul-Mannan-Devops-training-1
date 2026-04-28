@@ -50,4 +50,8 @@ jobs:
 
       - name: Verify deployment
         run: |
+          echo "=== Checking Homepage ==="
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "curl -s http://localhost:80"
+          echo ""
+          echo "=== Checking /quote API ==="
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "curl -s http://localhost:80/quote"
