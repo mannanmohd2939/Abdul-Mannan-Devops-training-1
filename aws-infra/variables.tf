@@ -7,7 +7,7 @@ variable "region" {
 variable "name_prefix" {
   description = "Prefix for resource names"
   type        = string
-  default     = "cmdstk-training-batch-1"
+  default     = "cmdstk-mannan-training-batch-1"
 }
 
 variable "vpc_cidr" {
@@ -38,4 +38,16 @@ variable "allowed_ssh_cidr" {
   description = "CIDR block allowed for SSH access"
   type        = string
   default     = "0.0.0.0/0"
+}
+
+variable "app_port" {
+  description = "Port for the application to run on"
+  type        = number
+  default     = 80
+}
+
+variable "app_type" {
+  description = "Type of application to deploy (nginx, nodejs, python, static)"
+  type        = string
+  default     = "nginx"
 }

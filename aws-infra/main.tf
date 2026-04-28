@@ -30,4 +30,6 @@ module "ec2" {
   subnet_id         = module.subnet.subnet_id
   instance_type     = var.instance_type
   allowed_ssh_cidr  = var.allowed_ssh_cidr
+  app_port          = var.app_port
+  app_type          = var.app_type
 }
