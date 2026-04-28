@@ -40,9 +40,13 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "mkdir -p $APP_DIR"
 
-          scp -o StrictHostKeyChecking=no -i ssh_key.pem -r ./* $EC2_USER@$EC2_HOST:$APP_DIR/
+          rsync -avz -e "ssh -i ssh_key.pem -o StrictHostKeyChecking=no" \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'ssh_key.pem' \
+            ./ $EC2_USER@$EC2_HOST:$APP_DIR/
 
-          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "rm -rf $APP_DIR/aws-infra $APP_DIR/.github"
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST \ "rm -rf $APP_DIR/.github"
 
       - name: Run deployment commands
         run: |
