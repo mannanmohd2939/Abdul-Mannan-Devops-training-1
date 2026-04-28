@@ -20,14 +20,64 @@ cat > /usr/share/nginx/html/index.html << 'EOF'
 <head>
     <title>Welcome</title>
     <style>
-        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; }
-        .container { text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 60%;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        #quote {
+            font-style: italic;
+            color: #555;
+            margin-top: 20px;
+        }
     </style>
+</head>
+<body>
+
     <div class="container">
-        <h1>Welcome to Your EC2 Instance!</h1>
-        <p>Application is running on port ${app_port}</p>
+        <h2>📌 Quote of the Day</h2>
+        <p id="quote"></p>
     </div>
+
+    <script>
+        const quotes = [
+            "The best way to get started is to quit talking and begin doing.",
+            "Success is not final, failure is not fatal.",
+            "Don’t watch the clock; do what it does.",
+            "It always seems impossible until it’s done.",
+            "Dream big and dare to fail.",
+            "Hardships often prepare ordinary people for an extraordinary destiny.",
+            "Believe you can and you're halfway there.",
+            "Act as if what you do makes a difference. It does.",
+            "Quality is not an act, it is a habit.",
+            "Stay hungry, stay foolish."
+        ];
+
+        function showRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            document.getElementById("quote").innerText = quotes[randomIndex];
+        }
+
+        showRandomQuote();
+    </script>
 
 </body>
 </html>
@@ -47,7 +97,64 @@ const port = ${app_port};
 
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end('<html><body><h1>Welcome to Node.js App!</h1><p>Running on port ' + port + '</p></body></html>');
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quote App</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 60%;
+        }
+        #quote {
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📌 Quote of the Day</h2>
+        <p id="quote"></p>
+    </div>
+
+    <script>
+        const quotes = [
+            "The best way to get started is to quit talking and begin doing.",
+            "Success is not final, failure is not fatal.",
+            "Don’t watch the clock; do what it does.",
+            "It always seems impossible until it’s done.",
+            "Dream big and dare to fail.",
+            "Hardships often prepare ordinary people for an extraordinary destiny.",
+            "Believe you can and you're halfway there.",
+            "Act as if what you do makes a difference. It does.",
+            "Quality is not an act, it is a habit.",
+            "Stay hungry, stay foolish."
+        ];
+
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        const quote = quotes[randomIndex];
+    </script>
+</body>
+</html>
+`;
+
+    res.end(html);
 });
 
 server.listen(port, () => {
@@ -94,18 +201,62 @@ HTML = '''
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome</title>
+    <title>Quote App</title>
     <style>
-        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; }
-        .container { text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 60%;
+        }
+
+        #quote {
+            font-style: italic;
+            color: #555;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Welcome to Python Flask App!</h1>
-        <p>Running on port ${app_port}</p>
+        <h2>📌 Quote of the Day</h2>
+        <p id="quote"></p>
     </div>
+
+    <script>
+        const quotes = [
+            "The best way to get started is to quit talking and begin doing.",
+            "Success is not final, failure is not fatal.",
+            "Don’t watch the clock; do what it does.",
+            "It always seems impossible until it’s done.",
+            "Dream big and dare to fail.",
+            "Hardships often prepare ordinary people for an extraordinary destiny.",
+            "Believe you can and you're halfway there.",
+            "Act as if what you do makes a difference. It does.",
+            "Quality is not an act, it is a habit.",
+            "Stay hungry, stay foolish."
+        ];
+
+        function showRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            document.getElementById("quote").innerText = quotes[randomIndex];
+        }
+
+        showRandomQuote();
+    </script>
+
 </body>
 </html>
 '''
