@@ -78,6 +78,9 @@ resource "aws_instance" "this" {
   key_name      = aws_key_pair.this.key_name
   vpc_security_group_ids = [aws_security_group.this.id]
 
+  # Associate with public IP (or use existing subnet's setting)
+  associate_public_ip_address = true
+
   user_data = templatefile("${path.module}/templates/user_data.tftpl", {
     app_type = var.app_type
     app_port = var.app_port
@@ -85,5 +88,15 @@ resource "aws_instance" "this" {
 
   tags = {
     Name = "${var.name_prefix}-ec2-instance"
+  }
+}
+
+# Allocate Elastic IP to ensure public IP even if subnet doesn't assign one
+resource "aws_eip" "this" {
+  instance = aws_instance.this.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "${var.name_prefix}-eip"
   }
 }
