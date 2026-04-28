@@ -19,7 +19,14 @@ locals {
   igw_id = data.aws_internet_gateway.this.id != "" ? data.aws_internet_gateway.this.id : aws_internet_gateway.this[0].id
 }
 
+# Look up existing route table for the subnet
+data "aws_route_table" "existing" {
+  subnet_id = var.subnet_id
+}
+
 resource "aws_route_table" "public" {
+  count = data.aws_route_table.existing.id != "" ? 0 : 1
+
   vpc_id = var.vpc_id
 
   route {
@@ -32,7 +39,13 @@ resource "aws_route_table" "public" {
   }
 }
 
+locals {
+  route_table_id = data.aws_route_table.existing.id != "" ? data.aws_route_table.existing.id : aws_route_table.public[0].id
+}
+
 resource "aws_route_table_association" "public" {
+  count = data.aws_route_table.existing.id != "" ? 0 : 1
+
   subnet_id      = var.subnet_id
-  route_table_id = aws_route_table.public.id
+  route_table_id = aws_route_table.public[0].id
 }
