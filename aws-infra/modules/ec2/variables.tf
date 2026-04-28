@@ -22,3 +22,13 @@ variable "allowed_ssh_cidr" {
   description = "CIDR block allowed for SSH access"
   type        = string
 }
+
+variable "app_port" {
+  description = "Port for the application to run on"
+  type        = number
+}
+
+variable "app_type" {
+  description = "Type of application to deploy (nginx, nodejs, python, static)"
+  type        = string
+}

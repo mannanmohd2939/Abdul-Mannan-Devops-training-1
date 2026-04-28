@@ -1,0 +1,176 @@
+#!/bin/bash
+
+# Application deployment script
+# App type: ${app_type}
+# App port: ${app_port}
+
+# Update system
+yum update -y
+
+%{ if app_type == "nginx" }
+# Install and configure Nginx
+amazon-linux-extras install -y nginx1
+systemctl enable nginx
+systemctl start nginx
+
+# Create custom index page
+cat > /usr/share/nginx/html/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+    <style>
+        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; }
+        .container { text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Your EC2 Instance!</h1>
+        <p>Application is running on port ${app_port}</p>
+    </div>
+</body>
+</html>
+EOF
+%{ endif }
+
+%{ if app_type == "nodejs" }
+# Install Node.js
+curl -sL https://rpm.nodesource.com/setup_18.x | bash -
+yum install -y nodejs
+
+# Create sample Node.js app
+mkdir -p /opt/myapp
+cat > /opt/myapp/index.js << 'EOF'
+const http = require('http');
+const port = ${app_port};
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end('<html><body><h1>Welcome to Node.js App!</h1><p>Running on port ' + port + '</p></body></html>');
+});
+
+server.listen(port, () => {
+    console.log('Server running on port ' + port);
+});
+EOF
+
+# Create systemd service
+cat > /etc/systemd/system/myapp.service << 'EOF'
+[Unit]
+Description=My Node.js App
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/myapp
+ExecStart=/usr/bin/node /opt/myapp/index.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable myapp
+systemctl start myapp
+%{ endif }
+
+%{ if app_type == "python" }
+# Install Python and Flask
+yum install -y python3 python3-pip
+pip3 install flask
+
+# Create sample Python app
+mkdir -p /opt/myapp
+cat > /opt/myapp/app.py << 'EOF'
+from flask import Flask, render_template_string
+import sys
+
+app = Flask(__name__)
+
+HTML = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+    <style>
+        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; }
+        .container { text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Python Flask App!</h1>
+        <p>Running on port ${app_port}</p>
+    </div>
+</body>
+</html>
+'''
+
+@app.route('/')
+def home():
+    return render_template_string(HTML)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=${app_port})
+EOF
+
+# Create systemd service
+cat > /etc/systemd/system/myapp.service << 'EOF'
+[Unit]
+Description=My Python Flask App
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/myapp
+ExecStart=/usr/bin/python3 /opt/myapp/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable myapp
+systemctl start myapp
+%{ endif }
+
+%{ if app_type == "static" }
+# Install Apache
+yum install -y httpd
+systemctl enable httpd
+systemctl start httpd
+
+# Create custom index page
+cat > /var/www/html/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+    <style>
+        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; }
+        .container { text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Your Static Website!</h1>
+        <p>Running on port ${app_port}</p>
+    </div>
+</body>
+</html>
+EOF
+%{ endif }
+
+# Ensure port is open in firewall
+firewall-cmd --permanent --add-port=${app_port}/tcp 2>/dev/null || true
+firewall-cmd --reload 2>/dev/null || true
+
+echo "Application deployment completed!"
