@@ -38,6 +38,13 @@ resource "aws_security_group" "this" {
     cidr_blocks = [var.allowed_ssh_cidr]
   }
 
+  ingress {
+    from_port   = var.app_port
+    to_port     = var.app_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -70,6 +77,11 @@ resource "aws_instance" "this" {
   subnet_id     = var.subnet_id
   key_name      = aws_key_pair.this.key_name
   vpc_security_group_ids = [aws_security_group.this.id]
+
+  user_data = templatefile("${path.module}/templates/user_data.tftpl", {
+    app_type = var.app_type
+    app_port = var.app_port
+  })
 
   tags = {
     Name = "${var.name_prefix}-ec2-instance"

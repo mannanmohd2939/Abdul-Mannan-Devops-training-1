@@ -39,3 +39,15 @@ variable "allowed_ssh_cidr" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+variable "app_port" {
+  description = "Port for the application to run on"
+  type        = number
+  default     = 80
+}
+
+variable "app_type" {
+  description = "Type of application to deploy (nginx, nodejs, python, static)"
+  type        = string
+  default     = "nginx"
+}
