@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   AWS_REGION: us-east-1
   EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -16,16 +20,15 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Retrieve SSH key from Secrets Manager
@@ -39,30 +42,18 @@ jobs:
 
       - name: Deploy application files
         run: |
-          # Create deployment directory
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "mkdir -p $APP_DIR"
-          
-          # Copy application files to EC2
+
           scp -o StrictHostKeyChecking=no -i ssh_key.pem -r ./* $EC2_USER@$EC2_HOST:$APP_DIR/
-          
-          # Note: Exclude terraform and .github directories from deployment
+
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "rm -rf $APP_DIR/aws-infra $APP_DIR/.github"
 
       - name: Run deployment commands
         run: |
-          # Restart application based on app type
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            # Restart based on app type (adjust as needed for your application)
-            
-            # If using systemd service
             sudo systemctl restart myapp || true
-            
-            # If using nginx
             sudo systemctl restart nginx || true
-            
-            # If using httpd
             sudo systemctl restart httpd || true
-            
             echo "Deployment completed!"
           EOF
 
