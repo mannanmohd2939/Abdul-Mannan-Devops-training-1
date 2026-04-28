@@ -31,13 +31,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Retrieve SSH key from Secrets Manager
+      - name: Setup SSH key
         run: |
-          SSH_KEY=$(aws secretsmanager get-secret-value \
-            --secret-id ${{ secrets.SECRET_NAME }} \
-            --query SecretString \
-            --output text)
-          echo "$SSH_KEY" > ssh_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > ssh_key.pem
           chmod 400 ssh_key.pem
 
       - name: Deploy application files
