@@ -51,9 +51,9 @@ jobs:
       - name: Run deployment commands
         run: |
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            sudo systemctl restart myapp || true
-            sudo systemctl restart nginx || true
-            sudo systemctl restart httpd || true
+            sudo systemctl stop nginx || true
+            sudo systemctl stop httpd || true
+            sudo systemctl restart myapp
             echo "Deployment completed!"
           EOF
 
