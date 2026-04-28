@@ -23,6 +23,12 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
+variable "key_pair_name" {
+  description = "Name of existing key pair to use"
+  type        = string
+  default     = "test-mannan"
+}
+
 variable "app_port" {
   description = "Port for the application to run on"
   type        = number

@@ -1,3 +1,23 @@
+# Add Terraform workspace configuration
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state-bucket"
+    key            = "path/to/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock"
+  }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
 module "vpc" {
   source = "./modules/vpc"
 
@@ -31,6 +51,7 @@ module "ec2" {
   subnet_id         = module.subnet.subnet_id
   instance_type     = var.instance_type
   allowed_ssh_cidr  = var.allowed_ssh_cidr
+  key_pair_name     = var.key_pair_name
   app_port          = var.app_port
   app_type          = var.app_type
 }

@@ -1,0 +1,50 @@
+name: Deploy Quote of the Day
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+        env:
+          TF_WORKSPACE: production
+
+  manual-approval:
+    needs: plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for manual approval
+        uses: hmarr/auto-approve-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

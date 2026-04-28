@@ -14,7 +14,7 @@ env:
   AWS_REGION: us-east-1
   EC2_HOST: ${{ secrets.EC2_HOST }}
   EC2_USER: ec2-user
-  SECRET_NAME: ${{ secrets.SECRET_NAME }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
   APP_DIR: /home/ec2-user/deploy
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > ssh_key.pem
+          echo "$SSH_PRIVATE_KEY" > ssh_key.pem
           chmod 400 ssh_key.pem
 
       - name: Deploy application files

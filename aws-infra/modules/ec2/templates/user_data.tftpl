@@ -273,25 +273,7 @@ import sys
 
 app = Flask(__name__)
 
-HTML = '''
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Welcome</title>
-    <style>
-        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f0f0; }
-        .container { text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome to Python Flask App!</h1>
-        <p>Running on port ${app_port}</p>
-    </div>
-</body>
-</html>
-'''
+
 
 @app.route('/')
 def home():
