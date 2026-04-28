@@ -6,7 +6,7 @@ data "aws_internet_gateway" "this" {
 }
 
 resource "aws_internet_gateway" "this" {
-  count = length(data.aws_internet_gateway.this.ids) > 0 ? 0 : 1
+  count = data.aws_internet_gateway.this.id != "" ? 0 : 1
 
   vpc_id = var.vpc_id
 
@@ -16,7 +16,7 @@ resource "aws_internet_gateway" "this" {
 }
 
 locals {
-  igw_id = length(data.aws_internet_gateway.this.ids) > 0 ? data.aws_internet_gateway.this.ids[0] : aws_internet_gateway.this[0].id
+  igw_id = data.aws_internet_gateway.this.id != "" ? data.aws_internet_gateway.this.id : aws_internet_gateway.this[0].id
 }
 
 resource "aws_route_table" "public" {
