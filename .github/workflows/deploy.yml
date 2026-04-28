@@ -50,8 +50,9 @@ jobs:
           "rm -rf $APP_DIR/.github"
 
       - name: Run deployment commands
-        run:
+        run: |
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+
           echo "Starting deployment..."
 
           if systemctl list-units --type=service | grep -q myapp; then
@@ -70,8 +71,7 @@ jobs:
           fi
 
           echo "Deployment completed!"
-          EOF
-
+      EOF
 
       - name: Verify deployment
         run: |
