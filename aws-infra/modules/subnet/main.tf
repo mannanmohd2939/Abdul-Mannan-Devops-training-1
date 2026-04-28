@@ -1,11 +1,7 @@
 data "aws_subnet" "existing" {
   filter {
-    name   = "vpc-id"
-    values = [var.vpc_id]
-  }
-  filter {
-    name   = "availabilityZone"
-    values = [var.availability_zone]
+    name   = "tag:Name"
+    values = ["cmdstk-training-batch-1-subnet-public"]
   }
 }
 

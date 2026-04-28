@@ -1,9 +1,8 @@
+# Look up existing VPC by name
 data "aws_vpc" "by_name" {
-  count = var.existing_vpc_id != "" ? 0 : 1
-
   filter {
     name   = "tag:Name"
-    values = ["cmdstk-devops-training-vpc-1"]
+    values = ["cmdstk-training-batch-1-vpc"]
   }
 }
 
@@ -14,7 +13,7 @@ data "aws_vpc" "by_id" {
 }
 
 resource "aws_vpc" "this" {
-  count = var.existing_vpc_id != "" ? 0 : (length(data.aws_vpc.by_name) > 0 && data.aws_vpc.by_name[0].id != "" ? 0 : 1)
+  count = var.existing_vpc_id != "" ? 0 : (data.aws_vpc.by_name.id != "" ? 0 : 1)
 
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
@@ -27,6 +26,6 @@ resource "aws_vpc" "this" {
 
 locals {
   vpc_id = var.existing_vpc_id != "" ? var.existing_vpc_id : (
-    length(data.aws_vpc.by_name) > 0 && data.aws_vpc.by_name[0].id != "" ? data.aws_vpc.by_name[0].id : aws_vpc.this[0].id
+    data.aws_vpc.by_name.id != "" ? data.aws_vpc.by_name.id : aws_vpc.this[0].id
   )
 }
