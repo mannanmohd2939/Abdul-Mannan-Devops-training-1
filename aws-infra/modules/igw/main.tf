@@ -24,6 +24,15 @@ data "aws_route_table" "existing" {
   subnet_id = var.subnet_id
 }
 
+# Ensure existing route table has IGW route
+resource "aws_route" "igw_route" {
+  count = data.aws_route_table.existing.id != "" ? 1 : 0
+
+  route_table_id            = data.aws_route_table.existing.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id                = local.igw_id
+}
+
 resource "aws_route_table" "public" {
   count = data.aws_route_table.existing.id != "" ? 0 : 1
 
