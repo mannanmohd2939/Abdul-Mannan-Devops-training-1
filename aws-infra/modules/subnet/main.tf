@@ -10,7 +10,7 @@ data "aws_subnet" "existing" {
 }
 
 resource "aws_subnet" "public" {
-  count = length(data.aws_subnet.existing.ids) > 0 ? 0 : 1
+  count = data.aws_subnet.existing.id != "" ? 0 : 1
 
   vpc_id                  = var.vpc_id
   cidr_block              = var.subnet_cidr
@@ -23,5 +23,5 @@ resource "aws_subnet" "public" {
 }
 
 locals {
-  subnet_id = length(data.aws_subnet.existing.ids) > 0 ? data.aws_subnet.existing.ids[0] : aws_subnet.public[0].id
+  subnet_id = data.aws_subnet.existing.id != "" ? data.aws_subnet.existing.id : aws_subnet.public[0].id
 }
