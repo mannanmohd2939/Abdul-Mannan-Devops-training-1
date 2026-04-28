@@ -15,7 +15,7 @@ env:
   EC2_HOST: ${{ secrets.EC2_HOST }}
   EC2_USER: ec2-user
   SECRET_NAME: ${{ secrets.SECRET_NAME }}
-  APP_DIR: /opt/deploy
+  APP_DIR: /home/ec2-user/deploy
 
 jobs:
   deploy:
