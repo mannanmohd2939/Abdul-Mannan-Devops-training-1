@@ -55,5 +55,5 @@ variable "app_port" {
 variable "app_type" {
   description = "Type of application to deploy (nginx, nodejs, python, static)"
   type        = string
-  default     = "python"
+  default     = "nginx"
 }
