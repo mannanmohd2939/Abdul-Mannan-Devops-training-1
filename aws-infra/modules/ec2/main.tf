@@ -59,6 +59,10 @@ resource "aws_instance" "this" {
     app_port = var.app_port
   })
 
+  lifecycle {
+    ignore_changes = [user_data]
+  }
+
   tags = {
     Name = "${var.name_prefix}-ec2-instance"
   }
