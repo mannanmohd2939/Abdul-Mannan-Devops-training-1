@@ -17,13 +17,3 @@ output "ec2_public_ip" {
   description = "Public IP address of the EC2 instance"
   value       = module.ec2.ec2_public_ip
 }
-
-output "secret_name" {
-  description = "Name of the Secrets Manager secret containing the SSH private key"
-  value       = module.ec2.secret_name
-}
-
-output "ssh_command" {
-  description = "Command to SSH into the instance"
-  value       = module.ec2.ssh_command
-}
