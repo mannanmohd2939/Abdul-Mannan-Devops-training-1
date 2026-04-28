@@ -46,16 +46,32 @@ jobs:
             --exclude 'ssh_key.pem' \
             ./ $EC2_USER@$EC2_HOST:$APP_DIR/
 
-          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST \ "rm -rf $APP_DIR/.github"
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST \
+          "rm -rf $APP_DIR/.github"
 
       - name: Run deployment commands
-        run: |
+        run:
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            sudo systemctl restart myapp || true
-            sudo systemctl restart nginx || true
-            sudo systemctl restart httpd || true
-            echo "Deployment completed!"
+          echo "Starting deployment..."
+
+          if systemctl list-units --type=service | grep -q myapp; then
+              sudo systemctl restart myapp
+              echo "myapp restarted"
+          fi
+
+          if systemctl list-units --type=service | grep -q nginx; then
+              sudo systemctl restart nginx
+              echo "nginx restarted"
+          fi
+
+          if systemctl list-units --type=service | grep -q httpd; then
+              sudo systemctl restart httpd
+              echo "httpd restarted"
+          fi
+
+          echo "Deployment completed!"
           EOF
+
 
       - name: Verify deployment
         run: |
