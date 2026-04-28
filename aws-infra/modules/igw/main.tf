@@ -1,7 +1,8 @@
+# Look up existing IGW by name
 data "aws_internet_gateway" "this" {
   filter {
-    name   = "attachment.vpc-id"
-    values = [var.vpc_id]
+    name   = "tag:Name"
+    values = ["cmdstk-training-batch-1-igw"]
   }
 }
 
@@ -19,18 +20,12 @@ locals {
   igw_id = data.aws_internet_gateway.this.id != "" ? data.aws_internet_gateway.this.id : aws_internet_gateway.this[0].id
 }
 
-# Look up existing route table for the subnet
+# Look up existing route table by name
 data "aws_route_table" "existing" {
-  subnet_id = var.subnet_id
-}
-
-# Ensure existing route table has IGW route
-resource "aws_route" "igw_route" {
-  count = data.aws_route_table.existing.id != "" ? 1 : 0
-
-  route_table_id            = data.aws_route_table.existing.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id                = local.igw_id
+  filter {
+    name   = "tag:Name"
+    values = ["cmdstk-training-batch-1-rt-public"]
+  }
 }
 
 resource "aws_route_table" "public" {
@@ -52,9 +47,5 @@ locals {
   route_table_id = data.aws_route_table.existing.id != "" ? data.aws_route_table.existing.id : aws_route_table.public[0].id
 }
 
-resource "aws_route_table_association" "public" {
-  count = data.aws_route_table.existing.id != "" ? 0 : 1
-
-  subnet_id      = var.subnet_id
-  route_table_id = aws_route_table.public[0].id
-}
+# Note: We don't create route table association since subnet is already associated with existing RT
+# The existing route table should already have IGW route
