@@ -1,4 +1,13 @@
+data "aws_internet_gateway" "this" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [var.vpc_id]
+  }
+}
+
 resource "aws_internet_gateway" "this" {
+  count = data.aws_internet_gateway.this.id != "" ? 0 : 1
+
   vpc_id = var.vpc_id
 
   tags = {
@@ -6,12 +15,16 @@ resource "aws_internet_gateway" "this" {
   }
 }
 
+locals {
+  igw_id = data.aws_internet_gateway.this.id != "" ? data.aws_internet_gateway.this.id : aws_internet_gateway.this[0].id
+}
+
 resource "aws_route_table" "public" {
   vpc_id = var.vpc_id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.this.id
+    gateway_id = local.igw_id
   }
 
   tags = {

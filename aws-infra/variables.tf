@@ -10,6 +10,12 @@ variable "name_prefix" {
   default     = "cmdstk-mannan-training-batch-1"
 }
 
+variable "existing_vpc_id" {
+  description = "ID of existing VPC to use"
+  type        = string
+  default     = ""
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
