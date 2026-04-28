@@ -76,3 +76,4 @@ jobs:
       - name: Verify deployment
         run: |
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "curl -s http://localhost:80 || echo 'Checking if app is running on port 80'"
+#test
