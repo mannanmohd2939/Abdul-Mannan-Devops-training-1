@@ -107,15 +107,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            let planOutput = 'No plan output available';
-            try {
-              if (fs.existsSync('plan.txt')) {
-                planOutput = fs.readFileSync('plan.txt', 'utf8').substring(0, 65000);
-              }
-            } catch (e) {
-              console.log('Could not read plan.txt');
-            }
+            const planOutput = process.env.PLAN_OUTPUT || 'No plan output available';
             const body = `### Terraform Plan 📋\n\n\`\`\`\n${planOutput}\n\`\`\`\n\n**Plan Status:** ${{ steps.plan.outcome }}`;
             
             const { data: comments } = await github.rest.issues.listComments({
@@ -151,7 +143,7 @@ jobs:
           retention-days: 5
 
   apply:
-    name: Apply  
+    name: Apply
     runs-on: ubuntu-latest
     needs: plan
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
@@ -184,16 +176,19 @@ jobs:
           path: ./aws-infra
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
         working-directory: ./aws-infra
 
   destroy:
     name: Destroy
     runs-on: ubuntu-latest
+    needs: validate
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
     permissions:
       id-token: write
       contents: read
+    environment:
+      name: destroy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
