@@ -46,13 +46,8 @@ jobs:
 
       - name: Run deployment commands
         run: |
-          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            sudo systemctl restart myapp || true
-            sudo systemctl restart nginx || true
-            sudo systemctl restart httpd || true
-            echo "Deployment completed!"
-          EOF
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp || true; echo 'Deployment completed!'"
 
       - name: Verify deployment
         run: |
-          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "curl -s http://localhost:80 || echo 'Checking if app is running on port 80'"
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem $EC2_USER@$EC2_HOST "curl -s http://localhost:80"
