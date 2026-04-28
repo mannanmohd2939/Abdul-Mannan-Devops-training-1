@@ -8,22 +8,9 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "this" {
-  key_name   = "${var.name_prefix}-ec2-keypair"
-  public_key = tls_private_key.ssh.public_key_openssh
-
-  lifecycle {
-    ignore_changes = [public_key]
-  }
-
-  tags = {
-    Name = "${var.name_prefix}-ec2-keypair"
-  }
+# Use existing key pair
+data "aws_key_pair" "this" {
+  key_name = "test-mannan"
 }
 
 resource "aws_security_group" "this" {
@@ -57,25 +44,11 @@ resource "aws_security_group" "this" {
   }
 }
 
-resource "aws_secretsmanager_secret" "ssh_key" {
-  name        = "${var.name_prefix}-ec2-keypair"
-  description = "SSH private key for EC2 instance"
-
-  tags = {
-    Name = "${var.name_prefix}-ec2-keypair"
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "ssh_key" {
-  secret_id = aws_secretsmanager_secret.ssh_key.id
-  secret_string = tls_private_key.ssh.private_key_pem
-}
-
 resource "aws_instance" "this" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = var.instance_type
   subnet_id     = var.subnet_id
-  key_name      = aws_key_pair.this.key_name
+  key_name      = data.aws_key_pair.this.key_name
   vpc_security_group_ids = [aws_security_group.this.id]
 
   # Associate with public IP (or use existing subnet's setting)
