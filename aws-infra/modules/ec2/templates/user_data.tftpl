@@ -13,71 +13,104 @@ amazon-linux-extras install -y nginx1
 systemctl enable nginx
 systemctl start nginx
 
-# Create custom index page
+# HOME PAGE
 cat > /usr/share/nginx/html/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome</title>
+    <title>Fitness Hub</title>
     <style>
-        body {
-            font-family: Arial;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: #f0f0f0;
-        }
-
-        .container {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 60%;
-        }
-
-        h2 {
-            color: #333;
-        }
-
-        #quote {
-            font-style: italic;
-            color: #555;
-            margin-top: 20px;
-        }
+        body { font-family: Arial; margin: 0; background: #f4f4f4; }
+        nav { background: #1abc9c; padding: 15px; text-align: center; }
+        nav a { color: white; margin: 15px; text-decoration: none; font-weight: bold; }
+        .container { text-align: center; padding: 50px; }
+        h1 { color: #2c3e50; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>📌 Quote of the Day</h2>
-        <p id="quote"></p>
-    </div>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="nutrition.html">Nutrition</a>
+</nav>
 
-    <script>
-        const quotes = [
-            "The best way to get started is to quit talking and begin doing.",
-            "Success is not final, failure is not fatal.",
-            "Don’t watch the clock; do what it does.",
-            "It always seems impossible until it’s done.",
-            "Dream big and dare to fail.",
-            "Hardships often prepare ordinary people for an extraordinary destiny.",
-            "Believe you can and you're halfway there.",
-            "Act as if what you do makes a difference. It does.",
-            "Quality is not an act, it is a habit.",
-            "Stay hungry, stay foolish."
-        ];
+<div class="container">
+    <h1>💪 Welcome to Fitness Hub</h1>
+    <p>Start your journey to a healthier and stronger life.</p>
+</div>
 
-        function showRandomQuote() {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            document.getElementById("quote").innerText = quotes[randomIndex];
-        }
+</body>
+</html>
+EOF
 
-        showRandomQuote();
-    </script>
+# WORKOUT PAGE
+cat > /usr/share/nginx/html/workouts.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workouts</title>
+    <style>
+        body { font-family: Arial; margin: 0; background: #ecf0f1; }
+        nav { background: #1abc9c; padding: 15px; text-align: center; }
+        nav a { color: white; margin: 15px; text-decoration: none; }
+        .container { padding: 40px; }
+        h2 { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="nutrition.html">Nutrition</a>
+</nav>
+
+<div class="container">
+    <h2>🏋️ Workout Plans</h2>
+    <ul>
+        <li>Push-ups – 3 sets of 15 reps</li>
+        <li>Squats – 3 sets of 20 reps</li>
+        <li>Plank – 60 seconds</li>
+        <li>Running – 20 minutes</li>
+    </ul>
+</div>
+
+</body>
+</html>
+EOF
+
+# NUTRITION PAGE
+cat > /usr/share/nginx/html/nutrition.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nutrition</title>
+    <style>
+        body { font-family: Arial; margin: 0; background: #ffffff; }
+        nav { background: #1abc9c; padding: 15px; text-align: center; }
+        nav a { color: white; margin: 15px; text-decoration: none; }
+        .container { padding: 40px; }
+        h2 { color: #27ae60; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="nutrition.html">Nutrition</a>
+</nav>
+
+<div class="container">
+    <h2>🥗 Nutrition Tips</h2>
+    <ul>
+        <li>Eat fresh fruits and vegetables</li>
+        <li>Drink at least 2–3 liters of water daily</li>
+        <li>Include protein in your meals</li>
+        <li>Avoid junk and processed foods</li>
+    </ul>
+</div>
 
 </body>
 </html>
@@ -297,66 +330,154 @@ yum install -y httpd
 systemctl enable httpd
 systemctl start httpd
 
-# Create custom index page
+# HOME PAGE
 cat > /var/www/html/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Quote App</title>
+    <title>Fitness Hub</title>
     <style>
         body {
             font-family: Arial;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
-            background: #f0f0f0;
+            background: #f4f4f4;
         }
-
+        nav {
+            background: #2c3e50;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
         .container {
             text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 60%;
+            padding: 50px;
         }
-
-        #quote {
-            font-style: italic;
-            color: #555;
+        h1 {
+            color: #27ae60;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>📌 Quote of the Day</h2>
-        <p id="quote"></p>
-    </div>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="nutrition.html">Nutrition</a>
+</nav>
 
-    <script>
-        const quotes = [
-            "The best way to get started is to quit talking and begin doing.",
-            "Success is not final, failure is not fatal.",
-            "Don’t watch the clock; do what it does.",
-            "It always seems impossible until it’s done.",
-            "Dream big and dare to fail.",
-            "Hardships often prepare ordinary people for an extraordinary destiny.",
-            "Believe you can and you're halfway there.",
-            "Act as if what you do makes a difference. It does.",
-            "Quality is not an act, it is a habit.",
-            "Stay hungry, stay foolish."
-        ];
+<div class="container">
+    <h1>💪 Welcome to Fitness Hub</h1>
+    <p>Your journey to a healthier life starts here.</p>
+</div>
 
-        function showRandomQuote() {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            document.getElementById("quote").innerText = quotes[randomIndex];
+</body>
+</html>
+EOF
+
+# WORKOUT PAGE
+cat > /var/www/html/workouts.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workouts</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #ecf0f1;
         }
+        nav {
+            background: #2c3e50;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 15px;
+            text-decoration: none;
+        }
+        .container {
+            padding: 40px;
+        }
+        h2 {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
 
-        showRandomQuote();
-    </script>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="nutrition.html">Nutrition</a>
+</nav>
+
+<div class="container">
+    <h2>🏋️ Workout Plans</h2>
+    <ul>
+        <li>Push-ups - 3 sets of 15 reps</li>
+        <li>Squats - 3 sets of 20 reps</li>
+        <li>Plank - 60 seconds</li>
+        <li>Running - 20 minutes</li>
+    </ul>
+</div>
+
+</body>
+</html>
+EOF
+
+# NUTRITION PAGE
+cat > /var/www/html/nutrition.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nutrition</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #fdfdfd;
+        }
+        nav {
+            background: #2c3e50;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 15px;
+            text-decoration: none;
+        }
+        .container {
+            padding: 40px;
+        }
+        h2 {
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="nutrition.html">Nutrition</a>
+</nav>
+
+<div class="container">
+    <h2>🥗 Healthy Diet Tips</h2>
+    <ul>
+        <li>Eat more vegetables and fruits</li>
+        <li>Stay hydrated</li>
+        <li>Include protein in every meal</li>
+        <li>Avoid processed foods</li>
+    </ul>
+</div>
 
 </body>
 </html>
