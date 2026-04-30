@@ -63,13 +63,3 @@ resource "aws_instance" "this" {
     Name = "${var.name_prefix}-ec2-instance"
   }
 }
-
-# Allocate Elastic IP to ensure public IP even if subnet doesn't assign one
-resource "aws_eip" "this" {
-  instance = aws_instance.this.id
-  domain   = "vpc"
-
-  tags = {
-    Name = "${var.name_prefix}-eip"
-  }
-}

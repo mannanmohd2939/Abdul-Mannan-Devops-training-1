@@ -7,7 +7,7 @@ variable "region" {
 variable "name_prefix" {
   description = "Prefix for resource names"
   type        = string
-  default     = "cmdstk-mannan-training-batch-1"
+  default     = "mannan-new-app"
 }
 
 variable "existing_vpc_id" {
