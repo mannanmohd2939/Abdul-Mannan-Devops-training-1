@@ -55,20 +55,14 @@ jobs:
 
           echo "Starting deployment..."
 
-          if systemctl list-units --type=service | grep -q myapp; then
-              sudo systemctl restart myapp
-              echo "myapp restarted"
-          fi
+          # Copy new website files to nginx root
+          sudo cp -r /home/ec2-user/deploy/* /usr/share/nginx/html/
 
-          if systemctl list-units --type=service | grep -q nginx; then
-              sudo systemctl restart nginx
-              echo "nginx restarted"
-          fi
+          # Fix permissions
+          sudo chmod -R 755 /usr/share/nginx/html
 
-          if systemctl list-units --type=service | grep -q httpd; then
-              sudo systemctl restart httpd
-              echo "httpd restarted"
-          fi
+          # Restart nginx
+          sudo systemctl restart nginx
 
           echo "Deployment completed!"
           EOF
