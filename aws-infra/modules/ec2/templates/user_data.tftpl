@@ -18,13 +18,36 @@ cat > /usr/share/nginx/html/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Fitness Hub</title>
     <style>
-        body { font-family: Arial; margin: 0; background: #f4f4f4; }
-        nav { background: #1abc9c; padding: 15px; text-align: center; }
-        nav a { color: white; margin: 15px; text-decoration: none; font-weight: bold; }
-        .container { text-align: center; padding: 50px; }
-        h1 { color: #2c3e50; }
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            color: white;
+        }
+        nav {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        h1 {
+            font-size: 40px;
+        }
+        p {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -37,7 +60,8 @@ cat > /usr/share/nginx/html/index.html << 'EOF'
 
 <div class="container">
     <h1>💪 Welcome to Fitness Hub</h1>
-    <p>Start your journey to a healthier and stronger life.</p>
+    <p>Your one-stop destination for workouts, healthy diet tips, and a better lifestyle.</p>
+    <p>Start today. Stay consistent. Transform your life.</p>
 </div>
 
 </body>
@@ -49,13 +73,34 @@ cat > /usr/share/nginx/html/workouts.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Workouts</title>
     <style>
-        body { font-family: Arial; margin: 0; background: #ecf0f1; }
-        nav { background: #1abc9c; padding: 15px; text-align: center; }
-        nav a { color: white; margin: 15px; text-decoration: none; }
-        .container { padding: 40px; }
-        h2 { color: #e74c3c; }
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #1e1e2f;
+            color: white;
+        }
+        nav {
+            background: #111;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: #00ffcc;
+            margin: 15px;
+            text-decoration: none;
+        }
+        .container {
+            padding: 50px;
+        }
+        h2 {
+            color: #00ffcc;
+        }
+        ul {
+            line-height: 2;
+        }
     </style>
 </head>
 <body>
@@ -68,11 +113,12 @@ cat > /usr/share/nginx/html/workouts.html << 'EOF'
 
 <div class="container">
     <h2>🏋️ Workout Plans</h2>
+    <p>Follow these simple daily exercises to stay fit:</p>
     <ul>
-        <li>Push-ups – 3 sets of 15 reps</li>
-        <li>Squats – 3 sets of 20 reps</li>
-        <li>Plank – 60 seconds</li>
-        <li>Running – 20 minutes</li>
+        <li>Push-ups – Build upper body strength</li>
+        <li>Squats – Strengthen legs and core</li>
+        <li>Plank – Improve stability and endurance</li>
+        <li>Running – Boost cardiovascular health</li>
     </ul>
 </div>
 
@@ -85,13 +131,34 @@ cat > /usr/share/nginx/html/nutrition.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Nutrition</title>
     <style>
-        body { font-family: Arial; margin: 0; background: #ffffff; }
-        nav { background: #1abc9c; padding: 15px; text-align: center; }
-        nav a { color: white; margin: 15px; text-decoration: none; }
-        .container { padding: 40px; }
-        h2 { color: #27ae60; }
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #f9f9f9;
+            color: #333;
+        }
+        nav {
+            background: #27ae60;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 15px;
+            text-decoration: none;
+        }
+        .container {
+            padding: 50px;
+        }
+        h2 {
+            color: #27ae60;
+        }
+        ul {
+            line-height: 2;
+        }
     </style>
 </head>
 <body>
@@ -104,10 +171,11 @@ cat > /usr/share/nginx/html/nutrition.html << 'EOF'
 
 <div class="container">
     <h2>🥗 Nutrition Tips</h2>
+    <p>Fuel your body with the right nutrients:</p>
     <ul>
-        <li>Eat fresh fruits and vegetables</li>
-        <li>Drink at least 2–3 liters of water daily</li>
-        <li>Include protein in your meals</li>
+        <li>Eat fresh fruits and vegetables daily</li>
+        <li>Stay hydrated (2–3 liters of water)</li>
+        <li>Include protein like eggs, chicken, or beans</li>
         <li>Avoid junk and processed foods</li>
     </ul>
 </div>
