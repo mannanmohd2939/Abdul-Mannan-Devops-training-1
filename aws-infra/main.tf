@@ -1,11 +1,7 @@
-resource "random_id" "resource_suffix" {
-  byte_length = 4
-}
-
 resource "aws_s3_bucket" "app_bucket" {
-  bucket = "${var.name_prefix}-${random_id.resource_suffix.hex}"
+  bucket = "smartnotes-attachments-mannan"
   tags = {
-    Name        = "${var.name_prefix}-bucket"
+    Name        = "smartnotes-attachments-mannan"
     Environment = "dev"
   }
 }
@@ -19,11 +15,11 @@ resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
 }
 
 resource "aws_sns_topic" "app_topic" {
-  name = "${var.name_prefix}-topic"
+  name = "smartnotes-events-mannan"
 }
 
 resource "aws_sqs_queue" "app_queue" {
-  name                       = "${var.name_prefix}-queue"
+  name                       = "smartnotes-processing-mannan"
   visibility_timeout_seconds = 30
   message_retention_seconds  = 86400
 }
