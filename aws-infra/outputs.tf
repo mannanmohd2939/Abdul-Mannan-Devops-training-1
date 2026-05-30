@@ -1,15 +1,24 @@
-output "vpc_id" {
-  description = "ID of the VPC"
-  value       = module.vpc.vpc_id
+output "s3_bucket_name" {
+  description = "Name of the application S3 bucket"
+  value       = aws_s3_bucket.app_bucket.bucket
 }
 
-output "subnet_id" {
-  description = "ID of the public subnet"
-  value       = module.subnet.subnet_id
+output "sns_topic_arn" {
+  description = "ARN of the SNS topic"
+  value       = aws_sns_topic.app_topic.arn
 }
 
-output "ec2_instance_id" {
-  description = "ID of the EC2 instance"
-  value       = module.ec2.ec2_instance_id
+output "sqs_queue_url" {
+  description = "URL of the SQS queue"
+  value       = aws_sqs_queue.app_queue.id
 }
 
+output "sqs_queue_arn" {
+  description = "ARN of the SQS queue"
+  value       = aws_sqs_queue.app_queue.arn
+}
+
+output "sns_to_sqs_subscription_arn" {
+  description = "ARN of the SNS subscription to SQS"
+  value       = aws_sns_topic_subscription.queue_subscription.arn
+}

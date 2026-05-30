@@ -1,36 +1,59 @@
-module "vpc" {
-  source = "./modules/vpc"
-
-  name_prefix       = var.name_prefix
-  vpc_cidr          = var.vpc_cidr
-  existing_vpc_id   = var.existing_vpc_id
+resource "random_id" "resource_suffix" {
+  byte_length = 4
 }
 
-module "subnet" {
-  source = "./modules/subnet"
-
-  name_prefix      = var.name_prefix
-  vpc_id           = module.vpc.vpc_id
-  subnet_cidr      = var.subnet_cidr
-  availability_zone = var.availability_zone
+resource "aws_s3_bucket" "app_bucket" {
+  bucket = "${var.name_prefix}-${random_id.resource_suffix.hex}"
+  tags = {
+    Name        = "${var.name_prefix}-bucket"
+    Environment = "dev"
+  }
 }
 
-module "igw" {
-  source = "./modules/igw"
-
-  name_prefix = var.name_prefix
-  vpc_id      = module.vpc.vpc_id
-  subnet_id   = module.subnet.subnet_id
+resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
+  bucket                  = aws_s3_bucket.app_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
-module "ec2" {
-  source = "./modules/ec2"
+resource "aws_sns_topic" "app_topic" {
+  name = "${var.name_prefix}-topic"
+}
 
-  name_prefix       = var.name_prefix
-  vpc_id            = module.vpc.vpc_id
-  subnet_id         = module.subnet.subnet_id
-  instance_type     = var.instance_type
-  allowed_ssh_cidr  = var.allowed_ssh_cidr
-  app_port          = var.app_port
-  app_type          = var.app_type
+resource "aws_sqs_queue" "app_queue" {
+  name                       = "${var.name_prefix}-queue"
+  visibility_timeout_seconds = 30
+  message_retention_seconds  = 86400
+}
+
+resource "aws_sns_topic_subscription" "queue_subscription" {
+  topic_arn            = aws_sns_topic.app_topic.arn
+  protocol             = "sqs"
+  endpoint             = aws_sqs_queue.app_queue.arn
+  raw_message_delivery = true
+}
+
+resource "aws_sqs_queue_policy" "allow_sns" {
+  queue_url = aws_sqs_queue.app_queue.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "sns.amazonaws.com"
+        }
+        Action = "sqs:SendMessage"
+        Resource = aws_sqs_queue.app_queue.arn
+        Condition = {
+          ArnEquals = {
+            "aws:SourceArn" = aws_sns_topic.app_topic.arn
+          }
+        }
+      }
+    ]
+  })
 }
