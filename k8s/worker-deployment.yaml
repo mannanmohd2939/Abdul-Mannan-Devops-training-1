@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartnotes-worker
+  namespace: smartnotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smartnotes-worker
+  template:
+    metadata:
+      labels:
+        app: smartnotes-worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/mannanmohd2939/smartnotes-worker:latest
+          envFrom:
+            - configMapRef:
+                name: smartnotes-config
+            - secretRef:
+                name: smartnotes-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"

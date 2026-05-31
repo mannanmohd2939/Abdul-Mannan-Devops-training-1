@@ -1,0 +1,12 @@
+cat > .dockerignore << 'EOF'
+**/.git
+**/.gitignore
+**/bin
+**/obj
+**/*.user
+**/.vs
+**/node_modules
+**/appsettings.Development.json
+**/appsettings.*.json
+!**/appsettings.json
+EOF

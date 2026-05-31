@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
 using SmartNotes.Core.Entities;
 
 namespace SmartNotes.Worker.Data;
@@ -16,9 +17,16 @@ public class SmartNotesDbContext : DbContext
 
         modelBuilder.Entity<Note>()
             .Property(x => x.Embedding)
-            .HasConversion(
-                v => new Vector(v),
-                v => v.ToArray())
             .HasColumnType("vector(1536)");
+
+        modelBuilder.Entity<Attachment>()
+            .HasOne(a => a.Note)
+            .WithMany(n => n.Attachments)
+            .HasForeignKey(a => a.NoteId);
+
+        modelBuilder.Entity<Tag>()
+            .HasOne(t => t.Note)
+            .WithMany(n => n.Tags)
+            .HasForeignKey(t => t.NoteId);
     }
 }

@@ -1,0 +1,103 @@
+name: SmartNotes CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/mannanmohd2939/smartnotes
+
+jobs:
+  ci:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore SmartNotes.sln
+
+      - name: Build
+        run: dotnet build SmartNotes.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test SmartNotes.sln --no-build -c Release --verbosity normal
+        continue-on-error: true  # remove once you have tests
+
+  docker:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./SmartNotes.Api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-api:latest
+            ${{ env.IMAGE_PREFIX }}-api:${{ github.sha }}
+
+      - name: Build & Push Worker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./SmartNotes.Worker/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-worker:latest
+            ${{ env.IMAGE_PREFIX }}-worker:${{ github.sha }}
+
+  deploy:
+    name: Deploy to Minikube
+    runs-on: self-hosted
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update image tags
+        run: |
+          sed -i "s|:latest|:${{ github.sha }}|g" k8s/api-deployment.yaml
+          sed -i "s|:latest|:${{ github.sha }}|g" k8s/worker-deployment.yaml
+
+      - name: Apply manifests
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/api-deployment.yaml
+          kubectl apply -f k8s/worker-deployment.yaml
+          kubectl apply -f k8s/ingress.yaml
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/smartnotes-api -n smartnotes --timeout=120s
+          kubectl rollout status deployment/smartnotes-worker -n smartnotes --timeout=120s
+
+      - name: Smoke test
+        run: |
+          MINIKUBE_IP=$(minikube ip)
+          curl -f http://${MINIKUBE_IP}/api/health || exit 1
+          echo "✅ Smoke test passed"

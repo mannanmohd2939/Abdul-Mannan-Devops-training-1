@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartnotes-api
+  namespace: smartnotes
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: smartnotes-api
+  template:
+    metadata:
+      labels:
+        app: smartnotes-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/mannanmohd2939/smartnotes-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: smartnotes-config
+            - secretRef:
+                name: smartnotes-secrets
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartnotes-api-svc
+  namespace: smartnotes
+spec:
+  selector:
+    app: smartnotes-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
