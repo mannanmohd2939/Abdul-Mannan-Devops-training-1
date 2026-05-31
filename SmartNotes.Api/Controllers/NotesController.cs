@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartNotes.Api.Data;
 using SmartNotes.Api.Models;
 using SmartNotes.Api.DTOs;
+using SmartNotes.Api.Services;
 
 namespace SmartNotes.Api.Controllers;
 
@@ -11,11 +12,15 @@ namespace SmartNotes.Api.Controllers;
 public class NotesController : ControllerBase
 {
     private readonly SmartNotesDbContext _context;
+    private readonly SqsService _sqsService;
+    private readonly SqsService _sqs;
 
-    public NotesController(SmartNotesDbContext context)
-    {
+    public NotesController(SmartNotesDbContext context, SqsService sqsService, SqsService sqs)
+   {
         _context = context;
-    }
+        _sqsService = sqsService;
+        _sqs = sqs;
+   }
 
     // GET ALL NOTES
     [HttpGet]
@@ -78,6 +83,7 @@ public class NotesController : ControllerBase
 
         _context.Notes.Add(note);
         await _context.SaveChangesAsync();
+        await _sqs.PublishAsync(note.Id, "CREATE");
 
         return Ok(note.Id);
     }
@@ -93,6 +99,7 @@ public class NotesController : ControllerBase
         note.Content = input.Content;
 
         await _context.SaveChangesAsync();
+        await _sqs.PublishAsync(note.Id, "UPDATE");
         return NoContent();
     }
 

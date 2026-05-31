@@ -55,3 +55,27 @@ aws sns publish --topic-arn <topic-arn> --message "Test message"
 aws sqs receive-message --queue-url <queue-url>
 ```
 
+// "SqsQueueUrl": "https://sqs.us-east-1.amazonaws.com/679336465006/smartnotes-processing-mannan",
+// "SnsTopicArn": "arn:aws:sns:us-east-1:679336465006:smartnotes-events-mannan",
+using Amazon.SQS;
+using Amazon.SimpleNotificationService;
+using Microsoft.EntityFrameworkCore;
+using SmartNotes.Worker;
+using SmartNotes.Worker.Data;
+using SmartNotes.Worker.Services;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddDbContext<SmartNotesDbContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
+
+builder.Services.AddSingleton<SqsListenerService>();
+builder.Services.AddSingleton<SnsService>();
+
+builder.Services.AddHostedService<Worker>();
+
+var host = builder.Build();
+host.Run();

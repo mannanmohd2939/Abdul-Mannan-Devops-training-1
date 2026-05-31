@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
 using SmartNotes.Api.Data;
 using SmartNotes.Api.Models;
+using Amazon.S3;
+using SmartNotes.Api.Services;
+using Amazon.SQS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,12 @@ builder.Services.AddDbContext<SmartNotesDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<Amazon.S3.IAmazonS3>();
+builder.Services.AddScoped<S3Service>();
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddAWSService<Amazon.SQS.IAmazonSQS>();
+builder.Services.AddScoped<SqsService>();
 
 var app = builder.Build();
 
