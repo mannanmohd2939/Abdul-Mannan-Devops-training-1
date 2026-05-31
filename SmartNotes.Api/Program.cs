@@ -18,10 +18,24 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
-builder.Services.AddAWSService<IAmazonS3>();
+// AWS — register but don't crash if credentials missing
+try
+{
+    builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+    builder.Services.AddAWSService<IAmazonS3>();
+    builder.Services.AddAWSService<IAmazonSQS>();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[WARN] AWS services could not be configured: {ex.Message}");
+    // Register no-op stubs so DI doesn't fail
+    builder.Services.AddSingleton<IAmazonS3>(_ =>
+        new AmazonS3Client(new Amazon.Runtime.AnonymousAWSCredentials(), Amazon.RegionEndpoint.USEast1));
+    builder.Services.AddSingleton<IAmazonSQS>(_ =>
+        new AmazonSQSClient(new Amazon.Runtime.AnonymousAWSCredentials(), Amazon.RegionEndpoint.USEast1));
+}
+
 builder.Services.AddScoped<S3Service>();
-builder.Services.AddAWSService<IAmazonSQS>();
 builder.Services.AddScoped<SqsService>();
 
 var app = builder.Build();
@@ -36,7 +50,7 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Health check endpoint — required for Kubernetes liveness/readiness probes
+// Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.MapControllers();
