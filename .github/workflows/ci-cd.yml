@@ -103,7 +103,10 @@ jobs:
       - name: Smoke test
         shell: powershell
         run: |
-          $ip = minikube ip
-          $response = Invoke-WebRequest -Uri "http://$ip/api/health" -UseBasicParsing
-          if ($response.StatusCode -ne 200) { exit 1 }
-          Write-Host "Smoke test passed"
+          $podName = kubectl get pod -n smartnotes -l app=smartnotes-api -o jsonpath="{.items[0].metadata.name}"
+          $result = kubectl exec -n smartnotes $podName -- curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health
+          if ($result -ne "200") {
+            Write-Host "Smoke test failed with status: $result"
+            exit 1
+          }
+          Write-Host "Smoke test passed with status: $result"
