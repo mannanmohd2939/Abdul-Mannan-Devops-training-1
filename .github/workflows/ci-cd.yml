@@ -30,7 +30,7 @@ jobs:
 
       - name: Test
         run: dotnet test SmartNotes.sln --no-build -c Release --verbosity normal
-        continue-on-error: true  # remove once you have tests
+        continue-on-error: true
 
   docker:
     name: Build & Push Images
@@ -79,11 +79,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Update image tags
+        shell: powershell
         run: |
-          sed -i "s|:latest|:${{ github.sha }}|g" k8s/api-deployment.yaml
-          sed -i "s|:latest|:${{ github.sha }}|g" k8s/worker-deployment.yaml
+          $sha = "${{ github.sha }}"
+          (Get-Content k8s/api-deployment.yaml) -replace ':latest', ":$sha" | Set-Content k8s/api-deployment.yaml
+          (Get-Content k8s/worker-deployment.yaml) -replace ':latest', ":$sha" | Set-Content k8s/worker-deployment.yaml
 
       - name: Apply manifests
+        shell: powershell
         run: |
           kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/configmap.yaml
@@ -92,12 +95,15 @@ jobs:
           kubectl apply -f k8s/ingress.yaml
 
       - name: Wait for rollout
+        shell: powershell
         run: |
           kubectl rollout status deployment/smartnotes-api -n smartnotes --timeout=120s
           kubectl rollout status deployment/smartnotes-worker -n smartnotes --timeout=120s
 
       - name: Smoke test
+        shell: powershell
         run: |
-          MINIKUBE_IP=$(minikube ip)
-          curl -f http://${MINIKUBE_IP}/api/health || exit 1
-          echo "✅ Smoke test passed"
+          $ip = minikube ip
+          $response = Invoke-WebRequest -Uri "http://$ip/api/health" -UseBasicParsing
+          if ($response.StatusCode -ne 200) { exit 1 }
+          Write-Host "Smoke test passed"
