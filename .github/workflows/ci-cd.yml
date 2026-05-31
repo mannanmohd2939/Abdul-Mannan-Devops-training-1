@@ -103,10 +103,21 @@ jobs:
       - name: Smoke test
         shell: powershell
         run: |
-          $podName = kubectl get pod -n smartnotes -l app=smartnotes-api -o jsonpath="{.items[0].metadata.name}"
-          $result = kubectl exec -n smartnotes $podName -- curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health
-          if ($result -ne "200") {
-            Write-Host "Smoke test failed with status: $result"
-            exit 1
+          # Port forward in background
+          $job = Start-Job -ScriptBlock {
+            kubectl port-forward -n smartnotes svc/smartnotes-api-svc 8888:80
           }
-          Write-Host "Smoke test passed with status: $result"
+          Start-Sleep -Seconds 5
+          
+          try {
+            $response = Invoke-WebRequest -Uri "http://localhost:8888/health" -UseBasicParsing
+            if ($response.StatusCode -eq 200) {
+              Write-Host "Smoke test passed with status: $($response.StatusCode)"
+            } else {
+              Write-Host "Smoke test failed with status: $($response.StatusCode)"
+              exit 1
+            }
+          } finally {
+            Stop-Job $job
+            Remove-Job $job
+          }
