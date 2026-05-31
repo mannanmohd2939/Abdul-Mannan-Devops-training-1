@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SmartNotes.Api.Data;
 using SmartNotes.Api.Models;
 using SmartNotes.Api.DTOs;
-using Pgvector;
 
 namespace SmartNotes.Api.Controllers;
 
@@ -11,71 +10,102 @@ namespace SmartNotes.Api.Controllers;
 [Route("api/[controller]")]
 public class NotesController : ControllerBase
 {
-    private readonly SmartNotesDbContext _db;
+    private readonly SmartNotesDbContext _context;
 
-    public NotesController(SmartNotesDbContext db)
+    public NotesController(SmartNotesDbContext context)
     {
-        _db = db;
+        _context = context;
     }
 
-    // CREATE
-    [HttpPost]
-    public async Task<IActionResult> Create(NoteCreateDto dto)
-   {
-        var note = new Note
-        {
-            Title = dto.Title,
-            Content = dto.Content,
-            Embedding = dto.Embedding
-        };
-
-        _db.Notes.Add(note);
-        await _db.SaveChangesAsync();
-
-        return Ok(note);
-    }
-
-    // GET ALL
+    // GET ALL NOTES
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _db.Notes.ToListAsync());
+        var notes = await _context.Notes
+            .Include(n => n.Tags)
+            .ToListAsync();
+
+        var result = notes.Select(n => new NoteDto
+        {
+            Id = n.Id,
+            Title = n.Title,
+            Content = n.Content,
+            Tags = n.Tags.Select(t => t.Name).ToList()
+       });
+
+       return Ok(result);
     }
 
-    // GET BY ID
+    // GET ONE NOTE
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var note = await _db.Notes.FindAsync(id);
-        return note == null ? NotFound() : Ok(note);
+        var note = await _context.Notes
+            .Include(n => n.Tags)
+            .FirstOrDefaultAsync(n => n.Id == id);
+
+        if (note == null) return NotFound();
+
+        var result = new NoteDto
+       {
+            Id = note.Id,
+            Title = note.Title,
+            Content = note.Content,
+            Tags = note.Tags.Select(t => t.Name).ToList()
+        };
+
+        return Ok(result);
     }
 
-    // DELETE
+    // CREATE NOTE
+    [HttpPost]
+    public async Task<IActionResult> Create(NoteCreateDto dto)
+    {
+        var note = new Note
+        { 
+            Title = dto.Title,
+            Content = dto.Content,
+            Embedding = null! // will be generated later
+        };
+
+        if (dto.Tags != null)
+       {
+            note.Tags = dto.Tags.Select(t => new Tag
+           {
+                Name = t
+           }).ToList();
+       }
+
+        _context.Notes.Add(note);
+        await _context.SaveChangesAsync();
+
+        return Ok(note.Id);
+    }
+
+    // UPDATE NOTE
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, Note input)
+    {
+        var note = await _context.Notes.FindAsync(id);
+        if (note == null) return NotFound();
+
+        note.Title = input.Title;
+        note.Content = input.Content;
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    // DELETE NOTE
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var note = await _db.Notes.FindAsync(id);
+        var note = await _context.Notes.FindAsync(id);
         if (note == null) return NotFound();
 
-        _db.Notes.Remove(note);
-        await _db.SaveChangesAsync();
-        return Ok();
-    }
+        _context.Notes.Remove(note);
+        await _context.SaveChangesAsync();
 
-    // SEMANTIC SEARCH (basic version)
-    [HttpPost("search")]
-    public async Task<IActionResult> Search([FromBody] float[] query)
-   {
-        var vector = new Vector(query);
-
-        var results = await _db.Notes
-            .FromSqlRaw(@"
-                SELECT * FROM ""Notes""
-                ORDER BY ""Embedding"" <-> {0}
-                LIMIT 5
-            ", vector)
-            .ToListAsync();
-
-        return Ok(results);
+        return NoContent();
     }
 }
