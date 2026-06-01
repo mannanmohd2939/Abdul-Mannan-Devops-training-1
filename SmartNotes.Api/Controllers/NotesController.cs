@@ -70,7 +70,7 @@ public class NotesController : ControllerBase
         { 
             Title = dto.Title,
             Content = dto.Content,
-            Embedding = null! // will be generated later
+            Embedding = new float[1536] // will be generated later
         };
 
         if (dto.Tags != null)
